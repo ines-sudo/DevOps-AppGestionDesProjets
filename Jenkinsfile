@@ -39,20 +39,27 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploiement de l application...'
-                sh 'docker compose up -d --build'
-                sh 'docker compose ps'
-            }
+         stage('Deploy') {
+    steps {
+        withCredentials([
+            string(
+                credentialsId: 'mysql-password',
+                variable: 'MYSQL_PASSWORD'
+            )
+        ]) {
+            echo 'Deploiement de l application...'
+            sh 'docker compose config --quiet'
+            sh 'docker compose up -d --build'
+            sh 'docker compose ps'
         }
+    }
+}
     }
 
     post {
         success {
             echo 'Pipeline Jenkins termine avec succes !'
         }
-
         failure {
             echo 'Erreur pendant le pipeline Jenkins.'
         }
